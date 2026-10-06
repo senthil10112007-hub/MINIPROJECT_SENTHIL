@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mini Project – Text to Speech &amp; Speech to Text</title>
+<style>
+:root{--bg:#f5f6fb;--cd:#fff;--tx:#151a30;--mu:#566080;--bd:#dfe3ef;--pr:#4338ca;--pf:#fff;--ps:#eceeff;--ok:#0b7a43;--er:#c5221f;--wa:#8a5300;--eb:#fdecea;--wb:#fff4e0;--ob:#e6f6ec;--sh:0 1px 2px rgba(20,26,48,.06),0 8px 24px rgba(20,26,48,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1120;--cd:#171b30;--tx:#eceefa;--mu:#a3abcb;--bd:#2a3050;--pr:#8b93ff;--pf:#10132a;--ps:#232a52;--ok:#4cd98a;--er:#ff8a85;--wa:#ffc266;--eb:#3a1c1f;--wb:#3a2e14;--ob:#143225;--sh:0 8px 24px rgba(0,0,0,.4)}}
+:root[data-theme=dark]{--bg:#0e1120;--cd:#171b30;--tx:#eceefa;--mu:#a3abcb;--bd:#2a3050;--pr:#8b93ff;--pf:#10132a;--ps:#232a52;--ok:#4cd98a;--er:#ff8a85;--wa:#ffc266;--eb:#3a1c1f;--wb:#3a2e14;--ob:#143225;--sh:0 8px 24px rgba(0,0,0,.4)}
+html,body{height:auto}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transition:background .2s,color .2s}
+button,select,textarea{font:inherit;color:inherit}
+.nb{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--cd);border-bottom:1px solid var(--bd)}
+.in{max-width:1080px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px}
+.br{display:flex;align-items:center;gap:10px;font-size:18px;white-space:nowrap}
+.lg{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--pr);color:var(--pf)}
+.rt,.pf{display:flex;align-items:center;gap:10px;min-width:0}
+.nm{font-weight:700;letter-spacing:.04em;font-size:14px;white-space:nowrap}
+.av{width:38px;height:38px;border-radius:50%;flex:none;box-shadow:0 0 0 2px var(--bd)}
+.wrap{max-width:1080px;margin:auto;padding:20px 16px 48px}
+h1{margin:6px 0 4px;font-size:clamp(22px,4vw,30px)}h2{margin:0 0 12px;font-size:18px}.mu{color:var(--mu);margin:0}
+.bt{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--bd);background:var(--cd);cursor:pointer;font-weight:600;transition:.15s}
+.bt:hover:not(:disabled){border-color:var(--pr);transform:translateY(-1px)}
+.bt.p{background:var(--pr);color:var(--pf);border-color:var(--pr)}
+.bt:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--pr);outline-offset:2px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.tab{text-align:left;padding:16px;border-radius:14px;border:1px solid var(--bd);background:var(--cd);cursor:pointer;box-shadow:var(--sh)}
+.tab[aria-selected=true]{border-color:var(--pr);box-shadow:0 0 0 2px var(--pr)}
+.tab b{display:block;font-size:17px}.tab span{color:var(--mu);font-size:13px}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:20px;box-shadow:var(--sh);margin-bottom:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+label.l{display:block;font-size:13px;font-weight:600;color:var(--mu);margin-bottom:4px}
+select,textarea{width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:9px 12px}
+textarea{min-height:260px;resize:vertical;line-height:1.6}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.dz{display:block;border:2px dashed var(--bd);border-radius:14px;padding:30px 16px;text-align:center;cursor:pointer;transition:.15s;color:var(--mu)}
+.dz:hover,.dz.on,.dz:focus-visible{border-color:var(--pr);background:var(--ps)}.dz b{color:var(--tx)}
+.fc{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--ps)}
+.fn{font-weight:700;overflow-wrap:anywhere}
+.al{padding:12px 14px;border-radius:10px;margin:12px 0;font-size:14px;border:1px solid currentColor}
+.al.er{background:var(--eb);color:var(--er)}.al.wa{background:var(--wb);color:var(--wa)}.al.ok{background:var(--ob);color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.ch{font-size:13px;padding:4px 10px;border-radius:99px;border:1px solid var(--bd);color:var(--mu)}
+.ch[data-s=on]{border-color:var(--pr);color:var(--pr);font-weight:700}
+.ch[data-s=done]{color:var(--ok);border-color:var(--ok)}.ch[data-s=done]::before{content:"✓ "}
+.bar{height:12px;border-radius:99px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--pr);transition:width .2s}
+.pl{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:14px}
+.sp{display:inline-block;width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--pr);border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes s{to{transform:rotate(360deg)}}
+.pv{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px;max-height:130px;overflow:auto;font-size:14px;color:var(--mu);overflow-wrap:anywhere;white-space:pre-wrap}
+.sl{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:14px}.sl input{width:100%;accent-color:var(--pr)}
+.bd{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;background:var(--ps);font-size:14px;font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--mu)}.rec .dot{background:var(--er);animation:b 1s infinite}
+@keyframes b{50%{opacity:.25}}
+.live{min-height:24px;color:var(--mu);font-style:italic;margin:10px 0;overflow-wrap:anywhere}
+.tm{font-variant-numeric:tabular-nums;font-size:22px;font-weight:700}
+.ft{font-size:13px;color:var(--mu);margin-top:8px}
+@media(max-width:700px){.tabs,.g2,.sl{grid-template-columns:1fr}.lb{display:none}.nm{font-size:12px}.card{padding:16px}.bt{flex:1 1 auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+<header class="nb"><div class="in">
+<div class="br"><span class="lg" aria-hidden="true">🎙️</span><b>MINI PROJECT</b></div>
+<div class="rt"><button id="th" class="bt" aria-pressed="false" aria-label="Toggle light or dark theme"></button>
+<div class="pf"><span class="nm">SENTHIL KUMAR</span>
+<svg class="av" viewBox="0 0 40 40" role="img" aria-label="Profile avatar of Senthil Kumar"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient><clipPath id="c"><circle cx="20" cy="20" r="20"/></clipPath></defs><circle cx="20" cy="20" r="20" fill="url(#g)"/><g clip-path="url(#c)"><circle cx="20" cy="15" r="7" fill="#fff"/><ellipse cx="20" cy="38" rx="14" ry="12" fill="#fff"/></g></svg></div></div>
+</div></header>
+<main class="wrap">
+<h1>Story Teller and Voice Converter</h1>
+<p class="mu">Turn large documents into speech, or speak for a long time and get an editable transcript.</p>
+<div class="tabs" role="tablist" aria-label="Tools">
+<button class="tab" role="tab" aria-selected="true" data-p="ptts"><b>🔊 Text-to-Speech</b><span>Upload document → Extract text → Process text → Convert to speech → Play</span></button>
+<button class="tab" role="tab" aria-selected="false" data-p="pstt"><b>📝 Speech-to-Text</b><span>Microphone → Record speech → Live transcription → Stop → Edit → Download</span></button>
+</div>
+
+<section id="ptts" class="panel" role="tabpanel">
+<div class="card"><h2>1. Choose a document</h2>
+<div class="g2"><div><label class="l" for="ft">File type</label><select id="ft"></select><p class="ft">Only files matching this type are accepted.</p></div></div><br>
+<label class="dz" id="dz" tabindex="0" for="fi"><b>Drag &amp; drop a file here</b><br>or click to browse<input id="fi" class="vh" type="file"></label>
+<div id="fc" class="fc" hidden><div><div class="fn" id="fn"></div><div class="mu" id="fm"></div></div><div class="row"><label class="bt" for="fi" style="margin:0">Replace</label><button class="bt" id="rm">Remove</button></div></div>
+<div id="ta" role="alert" hidden></div></div>
+
+<div class="card"><h2>2. Processing</h2>
+<div class="chips"><span class="ch">1 Upload</span><span class="ch">2 Extract</span><span class="ch">3 Process</span><span class="ch">4 Speak</span><span class="ch">5 Done</span></div>
+<div class="bar" id="pb" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progress"><i id="bf"></i></div>
+<div class="pl"><span><span class="sp" id="sp" hidden></span><span id="pl" aria-live="polite">Waiting for a document</span></span><b id="pp">0%</b></div></div>
+
+<div class="card"><h2>3. Listen</h2>
+<p class="pv" id="pv">Your document preview will appear here.</p>
+<p class="mu" style="margin:10px 0;font-size:14px" aria-live="off"><b>Now reading:</b> <span id="now">—</span></p>
+<div class="row"><button class="bt p" id="bP" disabled>▶ Play</button><button class="bt" id="bPa" disabled>⏸ Pause</button><button class="bt" id="bR" disabled>⏵ Resume</button><button class="bt" id="bS" disabled>■ Stop</button><button class="bt" id="bRe" disabled>↺ Restart</button></div>
+<div style="margin-top:14px"><label class="l" for="vs">Voice</label><select id="vs"></select></div>
+<div class="sl"><div><label class="l" for="rate">Speed <output id="ro">1×</output></label><input type="range" id="rate" min=".5" max="2" step=".1" value="1"></div>
+<div><label class="l" for="pitch">Pitch <output id="po">1</output></label><input type="range" id="pitch" min=".5" max="2" step=".1" value="1"></div>
+<div><label class="l" for="vol">Volume <output id="vo">100%</output></label><input type="range" id="vol" min="0" max="1" step=".05" value="1"></div></div>
+<p class="ft">Speed, pitch and volume apply from the next text block. Pause/resume support varies by browser and voice.</p></div>
+</section>
+
+<section id="pstt" class="panel" role="tabpanel" hidden>
+<div class="card"><h2>Record</h2>
+<div class="row" style="justify-content:space-between"><div class="row"><span class="bd" id="sb"><span class="dot"></span><span id="st">Idle</span></span><span class="bd" id="mb">🎤 Mic: not started</span><span class="tm" id="tmr" aria-label="Recording time">00:00:00</span></div>
+<div style="min-width:200px"><label class="l" for="lang">Language</label><select id="lang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="en-IN">English (India)</option><option value="en-AU">English (Australia)</option></select></div></div>
+<div class="row" style="margin-top:14px"><button class="bt p" id="rS">● Start Recording</button><button class="bt" id="rP" disabled>⏸ Pause</button><button class="bt" id="rR" disabled>⏵ Resume</button><button class="bt" id="rX" disabled>■ Stop Recording</button><button class="bt" id="rC">Clear Transcript</button></div>
+<div id="sa" role="alert" hidden></div>
+<div class="live" id="live" aria-live="polite"></div>
+<label class="l" for="tr">Transcript (editable)</label><textarea id="tr" placeholder="Your transcript will appear here as you speak. You can edit it at any time."></textarea>
+<div class="row" style="margin-top:12px"><b>Download:</b><button class="bt" data-d="txt" disabled>TXT</button><button class="bt" data-d="pdf" disabled>PDF</button><button class="bt" data-d="docx" disabled>DOCX</button><button class="bt" data-d="doc" disabled>DOC</button></div>
+<p class="ft">Browsers may end a recognition session on their own. VoiceDesk reconnects automatically and keeps all text, but long sessions depend on your browser and network (Chrome and Edge use an online service).</p></div>
+</section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),tick=()=>new Promise(r=>setTimeout(r,0));
+const root=document.documentElement;
+function theme(t){root.dataset.theme=t;try{localStorage.setItem('vd-theme',t)}catch(e){}$('#th').innerHTML=(t==='dark'?'☀️':'🌙')+'<span class="lb">'+(t==='dark'?'Light':'Dark')+'</span>';$('#th').setAttribute('aria-pressed',t==='dark')}
+let sv;try{sv=localStorage.getItem('vd-theme')}catch(e){}
+theme(sv||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+$('#th').onclick=()=>theme(root.dataset.theme==='dark'?'light':'dark');
+$$('[role=tab]').forEach(b=>b.onclick=()=>{$$('[role=tab]').forEach(x=>x.setAttribute('aria-selected',x===b));$$('.panel').forEach(p=>p.hidden=p.id!==b.dataset.p)});
+function note(el,m,k){k=k||'er';el.className='al '+k;el.textContent=m?({er:'⚠️ ',wa:'ℹ️ ',ok:'✅ '}[k])+m:'';el.hidden=!m}
+const fmt=n=>n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
+
+/* ---------- TEXT TO SPEECH ---------- */
+const T={txt:{n:'TXT',x:['txt'],m:['text/plain']},md:{n:'Markdown',x:['md','markdown'],m:['text/markdown','text/x-markdown','text/plain']},html:{n:'HTML',x:['html','htm'],m:['text/html']},pdf:{n:'PDF',x:['pdf'],m:['application/pdf']},docx:{n:'DOCX',x:['docx'],m:['application/vnd.openxmlformats-officedocument.wordprocessingml.document']},doc:{n:'DOC (best effort)',x:['doc'],m:['application/msword']}};
+const ft=$('#ft'),fi=$('#fi');
+ft.innerHTML=Object.entries(T).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');
+const setAcc=()=>fi.accept=T[ft.value].x.map(e=>'.'+e).join(',');setAcc();
+const SG=['upload','extract','process','speak','done'];
+function prog(s,f,l){const i=SG.indexOf(s);$$('.ch').forEach((c,j)=>c.dataset.s=(j<i||s==='done')?'done':j===i?'on':'');const p=Math.floor(f*100);$('#bf').style.width=p+'%';$('#pb').setAttribute('aria-valuenow',p);$('#pp').textContent=p+'%';$('#pl').textContent=l;$('#sp').hidden=!['upload','extract','process'].includes(s)}
+prog('',0,'Waiting for a document');
+function validate(f,k){const e=f.name.includes('.')?f.name.split('.').pop().toLowerCase():'';
+if(!f.size)return'This file is empty. Please choose a file that contains text.';
+if(f.size>157286400)return'This file is larger than 150 MB and may exceed browser memory. Please split it into smaller files.';
+if(!Object.values(T).some(v=>v.x.includes(e)))return`This file format is not supported. Supported types: ${Object.values(T).map(v=>v.n.split(' ')[0]).join(', ')}.`;
+if(!T[k].x.includes(e)||(f.type&&f.type!=='application/octet-stream'&&!T[k].m.includes(f.type)))return'Please select the correct file type for the uploaded file.';return''}
+let chunks=[],total=0,run=0,busy=false,cur=null,ci=0,dc=0,ss='idle',gen=0,voices=[];
+const synth=window.speechSynthesis;
+function ctl(){const r=chunks.length>0&&!busy;$('#bP').disabled=!r||ss!=='idle';$('#bPa').disabled=ss!=='playing';$('#bR').disabled=ss!=='paused';$('#bS').disabled=ss==='idle';$('#bRe').disabled=!r}
+function resetSpeech(){gen++;synth&&synth.cancel();ss='idle';ci=dc=0;chunks=[];total=0;$('#now').textContent='—';ctl()}
+async function readAll(f,ck){const parts=[];let o=0;const S=4194304;while(o<f.size){parts.push(new Uint8Array(await f.slice(o,o+S).arrayBuffer()));o+=S;prog('upload',Math.min(o,f.size)/f.size,'Reading file… '+fmt(Math.min(o,f.size))+' of '+fmt(f.size));ck();await tick()}return parts}
+const U=m=>({u:m});
+function docText(b){const s=new TextDecoder('latin1').decode(b);return(s.match(/[\x20-\x7E\u00A0-\u00FF\r\n\t]{40,}/g)||[]).join('\n')}
+async function load(f){
+const id=++run,ck=()=>{if(id!==run)throw{c:1}},k=ft.value;resetSpeech();busy=true;ctl();note($('#ta'),'');
+$('#fn').textContent=f.name;$('#fm').textContent=T[k].n.split(' ')[0]+' • '+fmt(f.size);$('#fc').hidden=false;$('#pv').textContent='Processing…';
+try{
+const parts=await readAll(f,ck);let text='';
+if(['txt','md','html'].includes(k)){const d=new TextDecoder();for(let i=0;i<parts.length;i++){text+=d.decode(parts[i],{stream:true});prog('extract',(i+1)/parts.length,'Extracting text…');ck();await tick()}
+if(k==='html'){const doc=new DOMParser().parseFromString(text,'text/html');doc.querySelectorAll('script,style,noscript').forEach(n=>n.remove());text=doc.body?doc.body.textContent:''}
+if(k==='md')text=text.replace(/(^|\n)#+\s*/g,'$1').replace(/[*_`~]/g,'')}
+else{let n=0;for(const p of parts)n+=p.length;const buf=new Uint8Array(n);let o=0;for(const p of parts){buf.set(p,o);o+=p.length}parts.length=0;
+const m=[...buf.slice(0,4)];
+if(k==='pdf'){if(String.fromCharCode(...m)!=='%PDF')throw U('This PDF looks damaged or is not a real PDF file.');
+if(!window.pdfjsLib)throw U('The PDF engine could not load. Please check your connection and reload.');
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let pdf;try{pdf=await pdfjsLib.getDocument({data:buf}).promise}catch(e){throw U(e&&e.name==='PasswordException'?'This PDF is password-protected. Please remove the password and try again.':'This PDF could not be read. It may be corrupted.')}
+const pg=[];for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i),c=await p.getTextContent();pg.push(c.items.map(x=>x.str).join(' '));p.cleanup();prog('extract',i/pdf.numPages,`Extracting text… page ${i} of ${pdf.numPages}`);ck();await tick()}
+text=pg.join('\n\n');pdf.destroy()}
+else if(k==='docx'){if(!(m[0]===0x50&&m[1]===0x4B))throw U('This DOCX file looks damaged or is not a real DOCX file.');
+if(!window.mammoth)throw U('The DOCX engine could not load. Please check your connection and reload.');
+prog('extract',.3,'Extracting text…');await tick();try{text=(await mammoth.extractRawText({arrayBuffer:buf.buffer})).value}catch(e){throw U('This DOCX file could not be read. It may be corrupted.')}prog('extract',1,'Extracting text…')}
+else{if(!(m[0]===0xD0&&m[1]===0xCF))throw U('This DOC file looks damaged or is not a real DOC file.');prog('extract',.5,'Extracting text…');await tick();text=docText(buf);prog('extract',1,'Extracting text…');
+if(text.length<20)throw U('Legacy DOC text could not be extracted reliably. Please save the file as DOCX and upload it again.')}}
+ck();if(!text.trim())throw U(k==='pdf'?'No readable text was found. This PDF may be a scanned image, which needs OCR.':'No readable text was found in this file.');
+text=text.replace(/\r/g,'').replace(/[ \t\u00A0]+/g,' ').replace(/ ?\n ?/g,'\n').replace(/\n{3,}/g,'\n\n');
+const out=[];let i=0,w=0;const N=text.length;
+while(i<N){let e=Math.min(i+200,N);if(e<N){const sg=text.slice(i,e);for(const s of ['. ','? ','! ','\n','; ',', ',' ']){const q=sg.lastIndexOf(s);if(q>60){e=i+q+1;break}}}
+const c=text.slice(i,e).trim();if(c){out.push(c);w+=c.split(' ').length}i=e;
+if(out.length%400===0){prog('process',i/N,'Processing document…');ck();await tick()}}
+chunks=out;total=out.reduce((a,c)=>a+c.length,0);
+$('#pv').textContent=out.slice(0,6).join(' ').slice(0,700)+(total>700?'…':'');
+prog('speak',0,`Ready — ${w.toLocaleString()} words in ${out.length.toLocaleString()} sections. Press Play.`);$('#sp').hidden=true;
+}catch(e){if(e&&e.c)return;console.error(e);resetSpeech();$('#pv').textContent='No document loaded.';prog('',0,'Processing failed');
+note($('#ta'),(e&&e.u)||'We could not process this file. It may be damaged, too large for this browser, or unsupported. Please try another file.')}
+finally{if(id===run){busy=false;ctl()}}}
+function pick(f){if(!f)return;const k=ft.value,er=validate(f,k);fi.value='';if(er){note($('#ta'),er);return}load(f)}
+fi.onchange=()=>pick(fi.files[0]);ft.onchange=()=>{setAcc();if(!$('#fc').hidden){$('#rm').click();note($('#ta'),'File type changed. Please upload a file of the selected type.','wa')}};
+const dz=$('#dz');['dragenter','dragover'].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.add('on')}));
+['dragleave','drop'].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.remove('on')}));
+dz.addEventListener('drop',e=>pick(e.dataTransfer.files[0]));dz.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fi.click()}});
+$('#rm').onclick=()=>{run++;busy=false;resetSpeech();$('#fc').hidden=true;note($('#ta'),'');$('#pv').textContent='Your document preview will appear here.';prog('',0,'Waiting for a document')};
+function speak(g){if(g!==gen)return;
+if(ci>=chunks.length){ss='idle';prog('done',1,'Completed');$('#now').textContent='Finished reading the document.';ctl();return}
+const c=chunks[ci],u=new SpeechSynthesisUtterance(c),v=voices.find(x=>x.voiceURI===$('#vs').value);
+if(v){u.voice=v;u.lang=v.lang}u.rate=+$('#rate').value;u.pitch=+$('#pitch').value;u.volume=+$('#vol').value;
+$('#now').textContent=c;prog('speak',dc/total,`Speaking — section ${ci+1} of ${chunks.length}`);
+u.onend=()=>{if(g!==gen)return;dc+=c.length;ci++;speak(g)};
+u.onerror=e=>{if(g!==gen||e.error==='canceled'||e.error==='interrupted')return;ss='idle';ctl();note($('#ta'),'Speech playback stopped unexpectedly. Try another voice or press Play again.')};
+synth.speak(u)}
+function play(){if(!synth)return;gen++;synth.cancel();ci=dc=0;ss='playing';note($('#ta'),'');ctl();speak(gen)}
+$('#bP').onclick=play;$('#bRe').onclick=play;
+$('#bPa').onclick=()=>{synth.pause();ss='paused';ctl()};$('#bR').onclick=()=>{synth.resume();ss='playing';ctl()};
+$('#bS').onclick=()=>{gen++;synth.cancel();ss='idle';ci=dc=0;prog('speak',0,'Stopped — press Play to start again');$('#now').textContent='—';ctl()};
+[['rate','ro',v=>v+'×'],['pitch','po',v=>v],['vol','vo',v=>Math.round(v*100)+'%']].forEach(([a,b,f])=>$('#'+a).oninput=e=>$('#'+b).textContent=f(e.target.value));
+function loadVoices(){if(!synth)return;voices=synth.getVoices();const old=$('#vs').value;
+const l=[...voices].sort((a,b)=>(b.lang.startsWith('en')-a.lang.startsWith('en'))||a.name.localeCompare(b.name));
+$('#vs').innerHTML=l.length?l.map(v=>`<option value="${v.voiceURI}">${v.name} (${v.lang})</option>`).join(''):'<option>Default browser voice</option>';if(old)$('#vs').value=old}
+if(synth){loadVoices();synth.onvoiceschanged=loadVoices}else{note($('#ta'),'Text-to-speech is not supported in this browser. Please try Chrome, Edge or Safari.')}
+addEventListener('beforeunload',()=>synth&&synth.cancel());ctl();
+
+/* ---------- SPEECH TO TEXT ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition,tr=$('#tr');
+let rec=null,ms='idle',el=0,ts=0,fails=0,rs=0,recDate=null;
+const pad=n=>String(n).padStart(2,'0');
+function clock(){const s=Math.floor((el+(ms==='rec'?Date.now()-ts:0))/1000);$('#tmr').textContent=pad(s/3600|0)+':'+pad(s/60%60|0)+':'+pad(s%60)}
+setInterval(clock,500);
+const mic=t=>$('#mb').textContent='🎤 Mic: '+t;
+function ui(){$('#sb').classList.toggle('rec',ms==='rec');$('#st').textContent=ms==='rec'?'Recording'+(rs?` · reconnected ${rs}×`:''):ms==='paused'?'Paused':'Idle';
+$('#rS').disabled=ms!=='idle'||!SR;$('#rP').disabled=ms!=='rec';$('#rR').disabled=ms!=='paused';$('#rX').disabled=ms==='idle';
+$$('[data-d]').forEach(b=>b.disabled=ms==='rec'||!tr.value.trim());if(ms==='idle')mic(micState)}
+let micState='not started';
+function add(t){t=t.trim();if(!t)return;tr.value+=(tr.value&&!/\s$/.test(tr.value)?' ':'')+t;tr.scrollTop=tr.scrollHeight;ui()}
+function halt(){if(ms==='rec')el+=Date.now()-ts;ms='idle';const r=rec;rec=null;try{r&&r.stop()}catch(e){}$('#live').textContent='';ui()}
+function begin(){const r=new SR();rec=r;r.lang=$('#lang').value;r.continuous=true;r.interimResults=true;
+r.onstart=()=>{micState='listening';mic('listening')};
+r.onresult=e=>{fails=0;let it='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;e.results[i].isFinal?add(t):it+=t}$('#live').textContent=it};
+r.onerror=e=>{const c=e.error;
+if(c==='not-allowed'||c==='service-not-allowed'){micState='blocked';halt();note($('#sa'),'Microphone access was blocked. Allow microphone permission in your browser settings, then try again.')}
+else if(c==='audio-capture'){micState='not found';halt();note($('#sa'),'No microphone was found. Connect one and try again.')}
+else if(c==='network'){if(++fails>4){halt();note($('#sa'),'Speech recognition lost its network connection. Your transcript is saved; check your connection and resume.')}else note($('#sa'),'Network hiccup — reconnecting…','wa')}};
+r.onend=()=>{$('#live').textContent='';if(r!==rec||ms!=='rec')return;rs++;ui();setTimeout(()=>{if(ms==='rec'&&r===rec)begin()},300)};
+try{r.start()}catch(e){}}
+function startRec(){if(!SR)return;ms='rec';ts=Date.now();fails=0;recDate=recDate||new Date();note($('#sa'),'');ui();begin()}
+$('#rS').onclick=()=>{if(!tr.value.trim()){el=0;rs=0;recDate=null}startRec()};
+$('#rR').onclick=startRec;
+$('#rP').onclick=()=>{el+=Date.now()-ts;ms='paused';const r=rec;rec=null;try{r.stop()}catch(e){}$('#live').textContent='';mic('paused');ui()};
+$('#rX').onclick=()=>{halt();micState='stopped';ui();note($('#sa'),tr.value.trim()?'Recording stopped. Review and edit your transcript, then download it.':'Recording stopped. No speech was recognized.',tr.value.trim()?'ok':'wa')};
+$('#rC').onclick=()=>{tr.value='';$('#live').textContent='';if(ms==='idle'){el=0;rs=0;recDate=null;clock()}note($('#sa'),'');ui()};
+tr.oninput=ui;
+if(!SR){micState='unavailable';note($('#sa'),'Speech recognition is not available in this browser. Please use Chrome or Edge (desktop or Android), or Safari 14.1+.','wa')}
+const save=(b,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)};
+const X=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function dl(kind){const text=tr.value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'').trim();if(!text){note($('#sa'),'There is no transcript to download yet.','wa');return}
+const d=recDate||new Date(),when=d.toLocaleString(),title='Speech Transcription',nm=`transcript-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
+try{
+if(kind==='txt')save(new Blob([`${title}\n${when}\n\n${text}\n`],{type:'text/plain;charset=utf-8'}),nm+'.txt');
+else if(kind==='doc')save(new Blob([`<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${title}</title></head><body style="font-family:Calibri,Arial;font-size:12pt"><h1>${title}</h1><p style="color:#666">${X(when)}</p>${text.split(/\n+/).map(l=>`<p>${X(l)}</p>`).join('')}</body></html>`],{type:'application/msword'}),nm+'.doc');
+else if(kind==='pdf'){if(!window.jspdf)throw U('The PDF export engine could not load. Please check your connection and reload.');
+const p=new jspdf.jsPDF({unit:'pt',format:'a4'}),W=p.internal.pageSize.getWidth()-100,H=p.internal.pageSize.getHeight()-60;
+p.setFont('helvetica','bold');p.setFontSize(20);p.text(title,50,60);p.setFont('helvetica','normal');p.setFontSize(10);p.setTextColor(110);p.text(when,50,80);p.setTextColor(20);p.setFontSize(12);
+let y=115;for(const ln of p.splitTextToSize(text,W)){if(y>H){p.addPage();y=60}p.text(ln,50,y);y+=17}p.save(nm+'.pdf')}
+else{if(!window.JSZip)throw U('The DOCX export engine could not load. Please check your connection and reload.');
+const P=(t,b,s)=>`<w:p><w:r><w:rPr>${b?'<w:b/>':''}<w:sz w:val="${s}"/></w:rPr><w:t xml:space="preserve">${X(t)}</w:t></w:r></w:p>`,H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+const z=new JSZip();
+z.file('[Content_Types].xml',H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+z.file('_rels/.rels',H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+z.file('word/document.xml',H+'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+P(title,1,40)+P(when,0,20)+P('',0,22)+text.split(/\n+/).map(l=>P(l,0,24)).join('')+'</w:body></w:document>');
+save(await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),nm+'.docx')}
+}catch(e){console.error(e);note($('#sa'),(e&&e.u)||'The download could not be created. Please try another format, or copy the text from the editor.')}}
+$$('[data-d]').forEach(b=>b.onclick=()=>dl(b.dataset.d));ui();
+</script>
+</body></html>
